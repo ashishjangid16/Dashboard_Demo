@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Portfolio health summary for Riklr client projects." />
+		<title>Riklr | Portfolio Health Summary</title>
+		<style>
+			:root {
+				color-scheme: light;
+				--page: #e6f4ff;
+				--panel: #ffffff;
+				--line: #d4e3ed;
+				--text: #253748;
+				--muted: #687584;
+				--green: #16834f;
+				--green-soft: #e8f5ed;
+				--orange: #d36a18;
+				--orange-soft: #fff1e6;
+				--red: #c7353e;
+				--red-soft: #fcebec;
+				--neutral: #003090;
+				--neutral-soft: #68acf0;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				background: var(--page);
+				color: var(--text);
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+				font-size: 14px;
+				line-height: 1.5;
+			}
+
+			a {
+				color: inherit;
+			}
+
+			.page-frame {
+				width: min(100% - 32px, 1540px);
+				min-height: calc(100vh - 32px);
+				margin: 16px auto;
+				padding: 26px 24px 38px;
+				border: 1px solid var(--line);
+				border-radius: 12px;
+				background: var(--page);
+			}
+
+			.site-header {
+				display: flex;
+				align-items: flex-start;
+			}
+
+			.brand {
+				display: grid;
+				gap: 1px;
+				color: var(--text);
+				text-decoration: none;
+			}
+
+			.brand-name {
+				font-size: 18px;
+				font-weight: 650;
+				line-height: 1.25;
+			}
+
+			.brand-subtitle {
+				color: var(--muted);
+				font-size: 12px;
+			}
+
+			main {
+				max-width: 1360px;
+				margin: 0 auto;
+			}
+
+			.page-heading {
+				margin: 18px 0 0;
+			}
+
+			.eyebrow {
+				margin: 0 0 7px;
+				color: var(--muted);
+				font-size: 11px;
+				font-weight: 600;
+				text-transform: uppercase;
+			}
+
+			h1,
+			h2,
+			p {
+				margin-top: 0;
+			}
+
+			h1 {
+				margin-bottom: 0;
+				color: var(--text);
+				font-size: 34px;
+				font-weight: 650;
+				line-height: 1.2;
+			}
+
+			h2 {
+				margin-bottom: 0;
+				font-size: 19px;
+				font-weight: 600;
+			}
+
+			.portfolio-health {
+				margin-top: 18px;
+				padding: 18px 0 0;
+				border-top: 1px solid var(--line);
+			}
+
+			.portfolio-health h2 {
+				margin: 0 0 8px;
+			}
+
+			.metric-grid {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				overflow: hidden;
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				background: var(--panel);
+			}
+
+			.metric {
+				min-width: 0;
+				min-height: 164px;
+				padding: 24px 24px 22px;
+			}
+
+			.metric:nth-child(odd) {
+				border-right: 1px solid var(--line);
+			}
+
+			.metric:nth-child(-n + 2) {
+				border-bottom: 1px solid var(--line);
+			}
+
+			.metric-label {
+				display: inline-block;
+				margin-bottom: 6px;
+				padding: 4px 9px;
+				border-radius: 999px;
+				color: var(--muted);
+				font-size: 14px;
+				font-weight: 600;
+			}
+
+			.metric-count {
+				display: block;
+				color: #111111;
+				font-size: 46px;
+				font-weight: 650;
+				line-height: 1.2;
+			}
+
+			.metric-detail {
+				display: block;
+				margin-top: 5px;
+				color: var(--muted);
+				font-size: 13px;
+				line-height: 1.45;
+			}
+
+			.metric[data-status="on-track"] .metric-label {
+				color: var(--green);
+				background: var(--green-soft);
+			}
+
+			.metric[data-status="at-risk"] .metric-label {
+				color: var(--orange);
+				background: var(--orange-soft);
+			}
+
+			.metric[data-status="off-track"] .metric-label {
+				color: var(--red);
+				background: var(--red-soft);
+			}
+
+			.metric[data-status="needs-review"] .metric-label {
+				color: var(--neutral);
+				background: var(--neutral-soft);
+			}
+
+			.project-summary-card {
+				margin-top: 0;
+				padding: 22px 24px 20px;
+				border: 1px solid var(--line);
+				border-radius: 9px;
+				background: var(--panel);
+			}
+
+			.project-card-header {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 20px;
+			}
+
+			.project-card-title {
+				margin: 0;
+				color: var(--text);
+				font-size: 24px;
+				font-weight: 650;
+				line-height: 1.25;
+			}
+
+			.project-title-row {
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 8px 12px;
+			}
+
+			.summary-toggle {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				min-height: 28px;
+				padding: 4px 10px;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				background: #f4f9fc;
+				color: var(--text);
+				cursor: pointer;
+				font: inherit;
+				font-size: 11px;
+				font-weight: 600;
+			}
+
+			.summary-toggle:hover {
+				background: #eaf5fb;
+			}
+
+			.summary-toggle:focus-visible {
+				outline: 2px solid #4b91b8;
+				outline-offset: 2px;
+			}
+
+			.summary-chevron {
+				width: 6px;
+				height: 6px;
+				border-right: 1.5px solid currentColor;
+				border-bottom: 1.5px solid currentColor;
+				transform: translateY(-2px) rotate(45deg);
+				transition: transform 150ms ease;
+			}
+
+			.summary-toggle[aria-expanded="true"] .summary-chevron {
+				transform: translateY(1px) rotate(225deg);
+			}
+
+			.weekly-summary {
+				margin-top: 14px;
+				padding: 12px 14px;
+				border-left: 3px solid #9ec7dd;
+				background: #f6fafc;
+			}
+
+			.weekly-summary[hidden] {
+				display: none;
+			}
+
+			.weekly-summary p {
+				margin: 0;
+				color: var(--muted);
+				font-size: 13px;
+				line-height: 1.6;
+			}
+
+			.meetings-panel {
+				display: grid;
+				gap: 9px;
+				padding: 10px 12px;
+				border-left: 0;
+				background: #f4f9fc;
+			}
+
+			.meeting-entry {
+				padding-bottom: 8px;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.meeting-entry:last-child {
+				padding-bottom: 0;
+				border-bottom: 0;
+			}
+
+			.meeting-next-date {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+				padding: 4px 2px;
+				color: var(--text);
+				font-size: 12px;
+			}
+
+			.meeting-next-date time {
+				color: var(--muted);
+				font-size: 11px;
+				white-space: nowrap;
+			}
+
+			.meeting-calendar-list {
+				display: grid;
+				gap: 8px;
+			}
+
+			.meeting-date-form {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+			}
+
+			.meeting-date-form input,
+			.meeting-date-add {
+				min-height: 30px;
+				padding: 4px 8px;
+				border: 1px solid var(--line);
+				border-radius: 6px;
+				background: var(--panel);
+				color: var(--text);
+				font: inherit;
+				font-size: 11px;
+			}
+
+			.meeting-date-add {
+				cursor: pointer;
+				font-weight: 600;
+			}
+
+			.meeting-date-list {
+				display: grid;
+				gap: 6px;
+			}
+
+			.meeting-date-entry {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 8px;
+				padding: 6px 0;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.meeting-date-entry time {
+				color: var(--muted);
+				font-size: 11px;
+				white-space: nowrap;
+			}
+
+			.meeting-date-entry .weekly-summary {
+				flex-basis: 100%;
+				margin-top: 0;
+			}
+
+			.project-status-badge {
+				flex: 0 0 auto;
+				padding: 5px 10px;
+				border-radius: 99px;
+				background: var(--green-soft);
+				color: var(--green);
+				font-size: 12px;
+				font-weight: 650;
+			}
+
+			.project-status-badge[data-status="at-risk"] {
+				background: var(--orange-soft);
+				color: var(--orange);
+			}
+
+			.project-status-badge[data-status="off-track"] {
+				background: var(--red-soft);
+				color: var(--red);
+			}
+
+			.projects-section {
+				margin-top: 24px;
+			}
+
+			.projects-heading {
+				margin: 0 0 12px;
+				color: var(--text);
+			}
+
+			.project-cards {
+				display: grid;
+				gap: 14px;
+			}
+
+			.weekly-blockers-card {
+				margin-top: 18px;
+				border: 1px solid var(--line);
+				border-radius: 8px;
+				background: var(--panel);
+				overflow: hidden;
+			}
+
+			.weekly-blockers-toggle {
+				display: grid;
+				width: 100%;
+				grid-template-columns: minmax(0, 1fr) auto auto;
+				align-items: center;
+				gap: 14px;
+				padding: 16px 18px;
+				border: 0;
+				background: transparent;
+				color: var(--text);
+				cursor: pointer;
+				font: inherit;
+				text-align: left;
+			}
+
+			.weekly-blockers-toggle:focus-visible,
+			.weekly-blocker-toggle:focus-visible {
+				outline: 2px solid #4b91b8;
+				outline-offset: -2px;
+			}
+
+			.weekly-blockers-heading {
+				display: grid;
+				gap: 2px;
+			}
+
+			.weekly-blockers-title {
+				font-size: 15px;
+				font-weight: 650;
+			}
+
+			.weekly-blockers-period {
+				color: var(--muted);
+				font-size: 11px;
+			}
+
+			.weekly-blocker-counts {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: flex-end;
+				gap: 5px;
+			}
+
+			.weekly-blocker-count,
+			.weekly-blocker-status {
+				display: inline-flex;
+				align-items: center;
+				gap: 5px;
+				padding: 3px 8px;
+				border-radius: 999px;
+				font-size: 10px;
+				font-weight: 650;
+				white-space: nowrap;
+			}
+
+			.weekly-blocker-count[data-status="done"],
+			.weekly-blocker-status[data-status="done"] {
+				background: var(--green-soft);
+				color: var(--green);
+			}
+
+			.weekly-blocker-count[data-status="ongoing"],
+			.weekly-blocker-status[data-status="ongoing"] {
+				background: var(--orange-soft);
+				color: var(--orange);
+			}
+
+			.weekly-blocker-count[data-status="overdue"],
+			.weekly-blocker-status[data-status="overdue"] {
+				background: var(--red-soft);
+				color: var(--red);
+			}
+
+			.weekly-blocker-total {
+				display: grid;
+				justify-items: end;
+				color: var(--text);
+				font-size: 16px;
+				font-weight: 700;
+				line-height: 1.1;
+			}
+
+			.weekly-blocker-total span:last-child {
+				margin-top: 3px;
+				color: var(--muted);
+				font-size: 10px;
+				font-weight: 450;
+			}
+
+			.weekly-blockers-toggle[aria-expanded="true"] .summary-chevron,
+			.weekly-blocker-toggle[aria-expanded="true"] .summary-chevron {
+				transform: translateY(1px) rotate(225deg);
+			}
+
+			.weekly-blockers-content[hidden],
+			.weekly-blocker-details[hidden] {
+				display: none;
+			}
+
+			.weekly-blockers-content {
+				padding: 0 18px;
+				border-top: 1px solid var(--line);
+			}
+
+			.ongoing-blocker-heading {
+				margin: 0;
+				padding: 16px 18px;
+			}
+
+			.ongoing-blocker-card .weekly-blockers-content {
+				padding: 0 18px;
+			}
+
+			.weekly-blocker-row {
+				border-bottom: 1px solid var(--line);
+			}
+
+			.weekly-blocker-row:last-child {
+				border-bottom: 0;
+			}
+
+			.weekly-blocker-toggle {
+				display: grid;
+				width: 100%;
+				grid-template-columns: minmax(0, 1fr) auto auto;
+				align-items: center;
+				gap: 12px;
+				padding: 13px 0;
+				border: 0;
+				background: transparent;
+				color: var(--text);
+				cursor: pointer;
+				font: inherit;
+				text-align: left;
+			}
+
+			.weekly-blocker-title {
+				font-size: 13px;
+				font-weight: 550;
+			}
+
+			.weekly-blocker-details {
+				padding: 0 0 14px;
+			}
+
+			.weekly-blocker-summary {
+				margin: 0 0 12px;
+				color: var(--muted);
+				font-size: 12px;
+				line-height: 1.55;
+			}
+
+			.weekly-blocker-detail-grid {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+				gap: 12px 20px;
+			}
+
+			.weekly-blocker-detail-label {
+				display: block;
+				margin-bottom: 2px;
+				color: var(--muted);
+				font-size: 10px;
+			}
+
+			.weekly-blocker-detail-value {
+				color: var(--text);
+				font-size: 12px;
+				font-weight: 550;
+			}
+
+			.owner-list {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 2px 26px;
+				margin-top: 8px;
+				color: var(--muted);
+				font-size: 13px;
+			}
+
+			.blocker-details {
+				margin-top: 20px;
+				padding-bottom: 18px;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.blocker-label-row {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-bottom: 5px;
+			}
+
+			.blocker-label-row .project-card-label {
+				margin-bottom: 0;
+			}
+
+			.project-card-label {
+				display: block;
+				margin-bottom: 5px;
+				color: var(--muted);
+				font-size: 10px;
+				font-weight: 650;
+				letter-spacing: 0.3px;
+				text-transform: uppercase;
+			}
+
+			.blocker-title {
+				margin: 0;
+				color: var(--text);
+				font-size: 17px;
+				font-weight: 550;
+				line-height: 1.4;
+			}
+
+			.blocker-description {
+				margin: 6px 0 0;
+				color: var(--muted);
+				font-size: 13px;
+			}
+
+			.project-card-details {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 18px 28px;
+				padding: 17px 0 15px;
+			}
+
+			.project-card-value {
+				display: block;
+				color: var(--text);
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 1.4;
+			}
+
+			.project-card-value-row {
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 6px 10px;
+			}
+
+			.project-card-subvalue {
+				display: block;
+				margin-top: 3px;
+				color: var(--muted);
+				font-size: 12px;
+				line-height: 1.4;
+			}
+
+			.source-of-truth {
+				margin: 0 0 14px;
+				color: var(--muted);
+				font-size: 12px;
+			}
+
+			.source-of-truth strong {
+				color: var(--text);
+				font-weight: 600;
+			}
+
+			@media (max-width: 640px) {
+				.page-frame {
+					width: calc(100% - 20px);
+					min-height: calc(100vh - 20px);
+					margin: 10px auto;
+					padding: 20px 14px 28px;
+					border-radius: 10px;
+				}
+
+				.page-heading {
+					margin-top: 16px;
+				}
+
+				h1 {
+					font-size: 28px;
+				}
+
+				.portfolio-health {
+					margin-top: 16px;
+					padding-top: 14px;
+				}
+
+				.metric {
+					min-height: 144px;
+					padding: 18px 13px;
+				}
+
+				.metric-label {
+					font-size: 13px;
+				}
+
+				.metric-count {
+					font-size: 38px;
+				}
+
+				.metric-detail {
+					font-size: 11px;
+				}
+
+				.project-summary-card {
+					padding: 17px 15px;
+				}
+
+				.project-card-title {
+					font-size: 20px;
+				}
+
+				.project-card-header {
+					gap: 10px;
+				}
+
+				.owner-list {
+					flex-direction: column;
+					gap: 1px;
+				}
+
+				.project-card-details {
+					grid-template-columns: 1fr;
+					gap: 14px;
+				}
+
+				.weekly-blockers-toggle {
+					grid-template-columns: minmax(0, 1fr) auto;
+					gap: 8px;
+					padding: 14px 12px;
+				}
+
+				.weekly-blocker-counts {
+					grid-column: 1 / -1;
+					justify-content: flex-start;
+					grid-row: 2;
+				}
+
+				.weekly-blocker-total {
+					grid-column: 2;
+					grid-row: 1;
+				}
+
+				.weekly-blockers-content {
+					padding: 0 12px;
+				}
+
+				.weekly-blocker-toggle {
+					grid-template-columns: minmax(0, 1fr) auto auto;
+					gap: 7px;
+				}
+
+				.weekly-blocker-detail-grid {
+					grid-template-columns: 1fr;
+					gap: 8px;
+				}
+
+				.projects-section {
+					margin-top: 20px;
+				}
+			}
+
+			@media (max-width: 370px) {
+				.metric {
+					padding-right: 9px;
+					padding-left: 9px;
+				}
+
+				.metric-label {
+					font-size: 12px;
+				}
+
+				.metric-count {
+					font-size: 34px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page-frame">
+			<header class="site-header">
+				<a class="brand" href="#portfolio" aria-label="Riklr Project tracker home">
+					<span class="brand-name">Riklr</span>
+					<span class="brand-subtitle">Project tracker</span>
+				</a>
+			</header>
+
+			<main id="portfolio">
+				<header class="page-heading">
+					<h1>Portfolio Health Summary</h1>
+				</header>
+
+				<section class="portfolio-health" aria-label="Portfolio health summary">
+					<div class="metric-grid" id="portfolio-metrics"></div>
+				</section>
+
+				<section class="projects-section" aria-labelledby="projects-heading">
+					<h2 class="projects-heading" id="projects-heading">Projects</h2>
+					<p class="source-of-truth" id="portfolio-source"></p>
+					<div class="project-cards" id="project-cards"></div>
+				</section>
+
+			</main>
+		</div>
+
+		<script>
+			const localProjects = [
+				{
+					name: "Axis Bank",
+					status: "on-track",
+					needsReview: true,
+					managementOwner: "Srijan",
+					fdeOwner: "Rushab",
+					blocker: "GLO Assistant API failure during e-stamp upload",
+					blockerDescription: "Potential delay to loan documentation. Confirm whether uploads are blocked.",
+					nextMilestone: "E-stamp workflow verified",
+					milestoneDeadline: "2026-11-06",
+					nextAction: "Investigate API failure",
+					nextActionOwner: "Aniket",
+					weekRange: "Oct 12-18 | Weekly overview",
+					weeklyBlockers: [
+						{
+							title: "GLO Assistant API failure",
+							status: "ongoing",
+							nextMilestone: "E-stamp workflow verified",
+							nextAction: "Validate token renewal and inspect timeout logs; confirm successful uploads.",
+							dueDate: "2026-10-20",
+							fdeOwner: "Rushab",
+						},
+						{
+							title: "CKYC verification check",
+							status: "done",
+							nextMilestone: "Identity and CKYC verification confirmed",
+							nextAction: "Monitor CKYC results in the next verification run.",
+							dueDate: "2026-10-16",
+							fdeOwner: "Rushab",
+						},
+						{
+							title: "CIBIL API credentials check",
+							status: "done",
+							nextMilestone: "Identity and CIBIL checks verified",
+							nextAction: "Confirm the credentials remain valid in the test environment.",
+							dueDate: "2026-10-17",
+							fdeOwner: "Rushab",
+						},
+					],
+				},
+				{
+					name: "Amar Chitra Katha",
+					status: "on-track",
+					managementOwner: "Bharat",
+					fdeOwner: "Jayesh",
+					blocker: "Final campaign assets awaiting content sign-off",
+					blockerDescription: "Confirm approval of the remaining creative assets before production handoff.",
+					nextMilestone: "Content approval complete",
+					milestoneDeadline: "2026-11-18",
+					nextAction: "Confirm asset approval",
+					nextActionOwner: "Ravish",
+				},
+				{
+					name: "Lodha",
+					status: "on-track",
+					managementOwner: "Srijan",
+					fdeOwner: "Ravish",
+					blocker: "Valuation service PR is awaiting review",
+					blockerDescription: "Review the open change before integrating the valuation service.",
+					nextMilestone: "Valuation integration verified",
+					milestoneDeadline: "2026-12-04",
+					nextAction: "Follow up on PR review",
+					nextActionOwner: "Abhishek",
+				},
+				{
+					name: "Mahyco",
+					status: "at-risk",
+					managementOwner: "Abhisekh",
+					fdeOwner: "None",
+					blocker: "Client approval pending for crop-data mapping",
+					blockerDescription: "Mapping changes cannot be finalized until the client confirms the proposed fields.",
+					nextMilestone: "Crop-data mapping approved",
+					milestoneDeadline: "2026-10-19",
+					nextAction: "Request client confirmation",
+					nextActionOwner: "Koshik",
+				},
+				{
+					name: "Kiran Gems",
+					status: "off-track",
+					managementOwner: "Srijan",
+					fdeOwner: "None",
+					blocker: "Nothing",
+					blockerDescription: "No Slack activity since last activity",
+					nextMilestone: "Nothing",
+					milestoneDeadline: "",
+					nextAction: "Nothing",
+					nextActionOwner: "None",
+				},
+			];
+
+			const statusLabels = {
+				"on-track": "On track",
+				"at-risk": "At risk",
+				"off-track": "Off track",
+			};
+
+			const sourceLabel = document.querySelector("#portfolio-source");
+			const projectCards = document.querySelector("#project-cards");
+			const metricsContainer = document.querySelector("#portfolio-metrics");
+
+			function emptyMeetings() {
+				return {
+					teamDates: [],
+					previousClientMeetings: [],
+					nextClientDate: "",
+				};
+			}
+
+			function defaultWeeklyBlockers(project) {
+				const blockerCountsByProject = {
+					"Amar Chitra Katha": 1,
+					Lodha: 1,
+					Mahyco: 2,
+					"Kiran Gems": 1,
+				};
+				const count = blockerCountsByProject[project.name] ?? 1;
+				const primaryStatus = project.status === "off-track" ? "overdue" : "ongoing";
+				const blockerTemplates = [
+					{
+						title: project.blocker,
+						status: primaryStatus,
+						summary: "",
+						nextMilestone: project.nextMilestone,
+						nextAction: project.nextAction,
+						dueDate: project.milestoneDeadline,
+						fdeOwner: project.fdeOwner,
+					},
+					{
+						title: project.nextMilestone,
+						status: "done",
+						summary: "",
+						nextMilestone: project.nextMilestone,
+						nextAction: project.nextAction,
+						dueDate: project.milestoneDeadline,
+						fdeOwner: project.fdeOwner,
+					},
+					{
+						title: project.nextAction,
+						status: "done",
+						summary: "",
+						nextMilestone: project.nextMilestone,
+						nextAction: project.nextAction,
+						dueDate: project.milestoneDeadline,
+						fdeOwner: project.fdeOwner,
+					},
+				];
+
+				return blockerTemplates.slice(0, count);
+			}
+
+			function clearDropdownSummaries(project) {
+				const meetings = project.meetings ?? emptyMeetings();
+				const weeklyBlockers = project.weeklyBlockers ?? [];
+
+				return {
+					...project,
+					weekSummary: "",
+					needsReviewReason: "",
+					blockerSummary: "",
+					milestoneSummary: "",
+					nextActionSummary: "",
+					meetings: {
+						teamDates: (meetings.teamDates ?? []).map((meeting) => ({ ...meeting, summary: "" })),
+						previousClientMeetings: (meetings.previousClientMeetings ?? []).map((meeting) => ({
+							...meeting,
+							summary: "",
+						})),
+						nextClientDate: meetings.nextClientDate ?? "",
+					},
+					weeklyBlockers: weeklyBlockers.map((blocker) => ({ ...blocker, summary: "" })),
+				};
+			}
+
+			function normalizeProject(project) {
+				const weeklyBlockers =
+					project.weeklyBlockers && project.weeklyBlockers.length > 0
+						? project.weeklyBlockers
+						: defaultWeeklyBlockers(project);
+
+				return clearDropdownSummaries({
+					needsReview: false,
+					meetings: emptyMeetings(),
+					needsReviewReason: "",
+					blockerSummary: "",
+					milestoneSummary: "",
+					nextActionSummary: "",
+					weekRange: "Dummy weekly overview",
+					...project,
+					needsReview: project.name === "Axis Bank" ? project.needsReview : false,
+					weeklyBlockers,
+				});
+			}
+
+			function buildMetrics(projects) {
+				const onTrack = projects.filter((project) => project.status === "on-track").length;
+				const atRisk = projects.filter((project) => project.status === "at-risk").length;
+				const offTrack = projects.filter((project) => project.status === "off-track").length;
+				const needsReview = projects.filter((project) => project.needsReview).length;
+
+				return [
+					{ status: "on-track", label: "On track", count: onTrack, detail: "Dummy projects included" },
+					{ status: "at-risk", label: "At risk", count: atRisk, detail: "Dummy projects included" },
+					{ status: "off-track", label: "Off track", count: offTrack, detail: "Dummy projects included" },
+					{ status: "needs-review", label: "Needs review", count: needsReview, detail: "Axis Bank" },
+				];
+			}
+
+			async function loadAxisBankProject() {
+				try {
+					const response = await fetch("/api/portfolio");
+					if (!response.ok) {
+						throw new Error(`Portfolio API failed with ${response.status}`);
+					}
+
+					const body = await response.json();
+					return body.data?.projects?.find((project) => project.name === "Axis Bank") ?? null;
+				} catch (error) {
+					console.error("Could not load Axis Bank from API:", error.message);
+					return null;
+				}
+			}
+
+			async function loadPortfolioData() {
+				const axisFromApi = await loadAxisBankProject();
+				const projects = localProjects.map((project) => {
+					if (project.name === "Axis Bank" && axisFromApi) {
+						return normalizeProject({ ...project, ...axisFromApi });
+					}
+
+					return normalizeProject(project);
+				});
+
+				return {
+					projects,
+					sources: ["GitHub", "Slack"],
+					metrics: buildMetrics(projects),
+				};
+			}
+
+			function createSummaryDisclosure(label, text, id) {
+				const toggle = document.createElement("button");
+				toggle.className = "summary-toggle";
+				toggle.type = "button";
+				toggle.setAttribute("aria-expanded", "false");
+				toggle.setAttribute("aria-controls", id);
+
+				const toggleLabel = document.createElement("span");
+				toggleLabel.textContent = label;
+
+				const chevron = document.createElement("span");
+				chevron.className = "summary-chevron";
+				chevron.setAttribute("aria-hidden", "true");
+				toggle.append(toggleLabel, chevron);
+
+				const panel = document.createElement("div");
+				panel.className = "weekly-summary";
+				panel.id = id;
+				panel.hidden = true;
+
+				if (text) {
+					const paragraph = document.createElement("p");
+					paragraph.textContent = text;
+					panel.append(paragraph);
+				}
+
+				toggle.addEventListener("click", () => {
+					const expanded = toggle.getAttribute("aria-expanded") === "true";
+					toggle.setAttribute("aria-expanded", String(!expanded));
+					panel.hidden = expanded;
+				});
+
+				return { toggle, panel };
+			}
+
+			function formatDate(date, locale = "en-US", options = { month: "short", day: "numeric", year: "numeric" }) {
+				if (!date) {
+					return "";
+				}
+
+				return new Date(`${date}T00:00:00`).toLocaleDateString(locale, options);
+			}
+
+			function createMeetingsDisclosure(meetings, index) {
+				const disclosure = createSummaryDisclosure("Meetings", "", `meetings-${index}`);
+				disclosure.panel.classList.add("meetings-panel");
+
+				const teamEntry = document.createElement("div");
+				teamEntry.className = "meeting-entry";
+				const teamMeeting = createSummaryDisclosure("Team meeting", "", `team-meeting-${index}`);
+				const teamContent = document.createElement("div");
+				teamContent.className = "meeting-calendar";
+				teamContent.append(createMeetingCalendar("Team meeting", meetings.teamDates, `team-meetings-${index}`));
+				teamMeeting.panel.append(teamContent);
+				teamEntry.append(teamMeeting.toggle, teamMeeting.panel);
+
+				const clientEntry = document.createElement("div");
+				clientEntry.className = "meeting-entry";
+				const clientMeeting = createSummaryDisclosure("Client meeting", "", `client-meeting-${index}`);
+				const clientContent = document.createElement("div");
+				clientContent.className = "meeting-calendar";
+				clientContent.append(
+					createMeetingCalendar("Client meeting", meetings.previousClientMeetings, `client-meetings-${index}`),
+				);
+
+				if (meetings.nextClientDate) {
+					const nextMeeting = document.createElement("div");
+					nextMeeting.className = "meeting-next-date";
+					const nextMeetingLabel = document.createElement("span");
+					nextMeetingLabel.textContent = "Next Client meeting";
+					const nextMeetingDate = document.createElement("time");
+					nextMeetingDate.dateTime = meetings.nextClientDate;
+					nextMeetingDate.textContent = formatDate(meetings.nextClientDate);
+					nextMeeting.append(nextMeetingLabel, nextMeetingDate);
+					clientContent.append(nextMeeting);
+				}
+
+				clientMeeting.panel.append(clientContent);
+				clientEntry.append(clientMeeting.toggle, clientMeeting.panel);
+				disclosure.panel.append(teamEntry, clientEntry);
+				return disclosure;
+			}
+
+			function createMeetingCalendar(meetingType, meetings, idPrefix) {
+				const calendar = document.createElement("div");
+				calendar.className = "meeting-calendar-list";
+				calendar.setAttribute("aria-label", `${meetingType} dates`);
+
+				const dateForm = document.createElement("form");
+				dateForm.className = "meeting-date-form";
+				const dateInput = document.createElement("input");
+				dateInput.type = "date";
+				dateInput.setAttribute("aria-label", `Select ${meetingType.toLowerCase()} date`);
+				dateInput.required = true;
+				const addButton = document.createElement("button");
+				addButton.className = "meeting-date-add";
+				addButton.type = "submit";
+				addButton.textContent = "Choose date";
+				dateForm.append(dateInput, addButton);
+
+				const meetingList = document.createElement("div");
+				meetingList.className = "meeting-date-list";
+
+				const renderMeetings = () => {
+					meetingList.replaceChildren();
+					meetings.sort((a, b) => a.date.localeCompare(b.date));
+					meetings.forEach((meeting, meetingIndex) => {
+						const entry = document.createElement("div");
+						entry.className = "meeting-date-entry";
+						const date = document.createElement("time");
+						date.dateTime = meeting.date;
+						date.textContent = formatDate(meeting.date);
+						const summary = createSummaryDisclosure("Summary", meeting.summary, `${idPrefix}-summary-${meetingIndex}`);
+						entry.append(date, summary.toggle, summary.panel);
+						meetingList.append(entry);
+					});
+				};
+
+				dateForm.addEventListener("submit", (event) => {
+					event.preventDefault();
+					const selectedDate = dateInput.value;
+					if (!selectedDate || meetings.some((meeting) => meeting.date === selectedDate)) {
+						return;
+					}
+					meetings.push({ date: selectedDate, summary: "" });
+					dateInput.value = "";
+					renderMeetings();
+				});
+
+				calendar.append(dateForm, meetingList);
+				renderMeetings();
+				return calendar;
+			}
+
+			function createWeeklyBlockerRow(blocker, index, blockerIndex) {
+				const row = document.createElement("article");
+				row.className = "weekly-blocker-row";
+				const detailsId = `weekly-blocker-details-${index}-${blockerIndex}`;
+				const toggle = document.createElement("button");
+				toggle.className = "weekly-blocker-toggle";
+				toggle.type = "button";
+				toggle.setAttribute("aria-expanded", "false");
+				toggle.setAttribute("aria-controls", detailsId);
+
+				const title = document.createElement("span");
+				title.className = "weekly-blocker-title";
+				title.textContent = blocker.title;
+				const status = document.createElement("span");
+				status.className = "weekly-blocker-status";
+				status.dataset.status = blocker.status;
+				status.textContent = blocker.status[0].toUpperCase() + blocker.status.slice(1);
+				const chevron = document.createElement("span");
+				chevron.className = "summary-chevron";
+				chevron.setAttribute("aria-hidden", "true");
+				toggle.append(title, status, chevron);
+
+				const details = document.createElement("div");
+				details.className = "weekly-blocker-details";
+				details.id = detailsId;
+				details.hidden = true;
+				if (blocker.summary) {
+					const summary = document.createElement("p");
+					summary.className = "weekly-blocker-summary";
+					summary.textContent = blocker.summary;
+					details.append(summary);
+				}
+
+				const detailGrid = document.createElement("div");
+				detailGrid.className = "weekly-blocker-detail-grid";
+				for (const [label, value] of [
+					["Next milestone", blocker.nextMilestone],
+					["Next action", blocker.nextAction],
+					["Owner", `FDE owner: ${blocker.fdeOwner}`],
+					["Due date", formatDate(blocker.dueDate)],
+				]) {
+					const detail = document.createElement("div");
+					const detailLabel = document.createElement("span");
+					detailLabel.className = "weekly-blocker-detail-label";
+					detailLabel.textContent = label;
+					const detailValue = document.createElement("span");
+					detailValue.className = "weekly-blocker-detail-value";
+					detailValue.textContent = value;
+					detail.append(detailLabel, detailValue);
+					detailGrid.append(detail);
+				}
+				details.append(detailGrid);
+
+				toggle.addEventListener("click", () => {
+					const expanded = toggle.getAttribute("aria-expanded") === "true";
+					toggle.setAttribute("aria-expanded", String(!expanded));
+					details.hidden = expanded;
+				});
+				row.append(toggle, details);
+				return row;
+			}
+
+			function createOngoingBlockerSection(project, index) {
+				const blocker = project.weeklyBlockers.find((entry) => entry.status === "ongoing");
+				if (!blocker) {
+					return document.createDocumentFragment();
+				}
+				const section = document.createElement("section");
+				section.className = "weekly-blockers-card ongoing-blocker-card";
+				section.setAttribute("aria-label", "Ongoing blocker");
+				const heading = document.createElement("h3");
+				heading.className = "weekly-blockers-title ongoing-blocker-heading";
+				heading.textContent = "Ongoing blocker";
+				const content = document.createElement("div");
+				content.className = "weekly-blockers-content";
+				content.append(createWeeklyBlockerRow(blocker, index, "ongoing"));
+				section.append(heading, content);
+				return section;
+			}
+
+			function createAxisDeliverySection(project, index) {
+				if (project.weeklyBlockers.length === 0) {
+					return document.createDocumentFragment();
+				}
+
+				const section = document.createElement("section");
+				section.className = "weekly-blockers-card";
+				section.setAttribute("aria-label", "This week's blockers");
+				const blockerCounts = project.weeklyBlockers.reduce(
+					(counts, blocker) => {
+						counts[blocker.status] += 1;
+						return counts;
+					},
+					{ done: 0, ongoing: 0, overdue: 0 },
+				);
+				const panelId = `weekly-blockers-${index}`;
+				const summaryToggle = document.createElement("button");
+				summaryToggle.className = "weekly-blockers-toggle";
+				summaryToggle.type = "button";
+				summaryToggle.setAttribute("aria-expanded", "false");
+				summaryToggle.setAttribute("aria-controls", panelId);
+
+				const heading = document.createElement("span");
+				heading.className = "weekly-blockers-heading";
+				const title = document.createElement("span");
+				title.className = "weekly-blockers-title";
+				title.textContent = "This Week's Blockers";
+				const period = document.createElement("span");
+				period.className = "weekly-blockers-period";
+				period.textContent = project.weekRange;
+				heading.append(title, period);
+
+				const counts = document.createElement("span");
+				counts.className = "weekly-blocker-counts";
+				for (const [status, label] of [["done", "Done"], ["ongoing", "Ongoing"], ["overdue", "Overdue"]]) {
+					const badge = document.createElement("span");
+					badge.className = "weekly-blocker-count";
+					badge.dataset.status = status;
+					badge.textContent = `${blockerCounts[status]} ${label}`;
+					counts.append(badge);
+				}
+
+				const total = document.createElement("span");
+				total.className = "weekly-blocker-total";
+				const totalNumber = document.createElement("span");
+				totalNumber.textContent = project.weeklyBlockers.length;
+				const totalLabel = document.createElement("span");
+				totalLabel.textContent = "Blockers";
+				total.append(totalNumber, totalLabel);
+				const summaryChevron = document.createElement("span");
+				summaryChevron.className = "summary-chevron";
+				summaryChevron.setAttribute("aria-hidden", "true");
+				summaryToggle.append(heading, counts, total, summaryChevron);
+
+				const content = document.createElement("div");
+				content.className = "weekly-blockers-content";
+				content.id = panelId;
+				content.hidden = true;
+				summaryToggle.addEventListener("click", () => {
+					const expanded = summaryToggle.getAttribute("aria-expanded") === "true";
+					summaryToggle.setAttribute("aria-expanded", String(!expanded));
+					content.hidden = expanded;
+				});
+				section.append(summaryToggle, content);
+				project.weeklyBlockers.forEach((blocker, blockerIndex) => {
+					content.append(createWeeklyBlockerRow(blocker, index, blockerIndex));
+				});
+				return section;
+			}
+
+			function createProjectCard(project, index) {
+				const headingId = `project-card-title-${index}`;
+				const blockerId = `project-card-blocker-${index}`;
+				const card = document.createElement("article");
+				card.className = "project-summary-card";
+				card.setAttribute("aria-labelledby", headingId);
+
+				const cardHeader = document.createElement("header");
+				cardHeader.className = "project-card-header";
+				const projectIdentity = document.createElement("div");
+				const projectTitleRow = document.createElement("div");
+				projectTitleRow.className = "project-title-row";
+				const projectName = document.createElement("h2");
+				projectName.className = "project-card-title";
+				projectName.id = headingId;
+				projectName.textContent = project.name;
+				const weekSummary = createSummaryDisclosure("Week summary", project.weekSummary, `week-summary-${index}`);
+				const titleControls = [projectName, weekSummary.toggle];
+				const titlePanels = [weekSummary.panel];
+				const lastWeekSummary = createSummaryDisclosure("Last week summary", "", `last-week-summary-${index}`);
+				titleControls.push(lastWeekSummary.toggle);
+				titlePanels.push(lastWeekSummary.panel);
+
+				if (project.meetings) {
+					const meetings = createMeetingsDisclosure(project.meetings, index);
+					titleControls.push(meetings.toggle);
+					titlePanels.push(meetings.panel);
+				}
+				if (project.needsReview) {
+					const needsReviewSummary = createSummaryDisclosure(
+						"Needs review",
+						project.needsReviewReason ?? "",
+						`needs-review-${index}`,
+					);
+					titleControls.push(needsReviewSummary.toggle);
+					titlePanels.push(needsReviewSummary.panel);
+				}
+				projectTitleRow.append(...titleControls);
+
+				const owners = document.createElement("div");
+				owners.className = "owner-list";
+				const managementOwner = document.createElement("span");
+				managementOwner.textContent = `Management owner: ${project.managementOwner}`;
+				const fdeOwner = document.createElement("span");
+				fdeOwner.textContent = `FDE owner: ${project.fdeOwner}`;
+				owners.append(managementOwner, fdeOwner);
+				projectIdentity.append(projectTitleRow, owners);
+
+				const statusBadge = document.createElement("span");
+				statusBadge.className = "project-status-badge";
+				statusBadge.dataset.status = project.status;
+				statusBadge.textContent = statusLabels[project.status];
+				cardHeader.append(projectIdentity, statusBadge);
+
+				const blockerDetails = document.createElement("section");
+				blockerDetails.className = "blocker-details";
+				blockerDetails.setAttribute("aria-labelledby", blockerId);
+				const blockerLabelRow = document.createElement("div");
+				blockerLabelRow.className = "blocker-label-row";
+				const blockerLabel = document.createElement("span");
+				blockerLabel.className = "project-card-label";
+				blockerLabel.textContent = "Blocker";
+				const blockerSummary = createSummaryDisclosure("Blocker summary", project.blockerSummary, `blocker-summary-${index}`);
+				blockerLabelRow.append(blockerLabel, blockerSummary.toggle);
+				const blockerTitle = document.createElement("h3");
+				blockerTitle.className = "blocker-title";
+				blockerTitle.id = blockerId;
+				blockerTitle.textContent = project.blocker;
+				const blockerDescription = document.createElement("p");
+				blockerDescription.className = "blocker-description";
+				blockerDescription.textContent = project.blockerDescription;
+				blockerDetails.append(blockerLabelRow, blockerSummary.panel, blockerTitle, blockerDescription);
+
+				const cardDetails = document.createElement("div");
+				cardDetails.className = "project-card-details";
+				const milestone = document.createElement("div");
+				const milestoneLabel = document.createElement("span");
+				milestoneLabel.className = "project-card-label";
+				milestoneLabel.textContent = "Next milestone";
+				const milestoneSummary = createSummaryDisclosure("Milestone summary", project.milestoneSummary, `milestone-summary-${index}`);
+				const milestoneName = document.createElement("strong");
+				milestoneName.className = "project-card-value";
+				milestoneName.textContent = project.nextMilestone;
+				const milestoneValueRow = document.createElement("div");
+				milestoneValueRow.className = "project-card-value-row";
+				milestoneValueRow.append(milestoneName, milestoneSummary.toggle);
+				const milestoneDate = document.createElement("time");
+				milestoneDate.className = "project-card-subvalue";
+				if (project.milestoneDeadline) {
+					milestoneDate.dateTime = project.milestoneDeadline;
+					milestoneDate.textContent = `Due ${formatDate(project.milestoneDeadline, "en-GB", { day: "numeric", month: "short" })}`;
+				} else {
+					milestoneDate.hidden = true;
+				}
+				milestone.append(milestoneLabel, milestoneValueRow, milestoneSummary.panel, milestoneDate);
+
+				const nextAction = document.createElement("div");
+				const actionLabel = document.createElement("span");
+				actionLabel.className = "project-card-label";
+				actionLabel.textContent = "Next action";
+				const nextActionSummary = createSummaryDisclosure("Action summary", project.nextActionSummary, `action-summary-${index}`);
+				const actionName = document.createElement("strong");
+				actionName.className = "project-card-value";
+				actionName.textContent = project.nextAction;
+				const actionValueRow = document.createElement("div");
+				actionValueRow.className = "project-card-value-row";
+				actionValueRow.append(actionName, nextActionSummary.toggle);
+				const actionOwner = document.createElement("span");
+				actionOwner.className = "project-card-subvalue";
+				actionOwner.textContent = `Owner: ${project.nextActionOwner}`;
+				nextAction.append(actionLabel, actionValueRow, nextActionSummary.panel, actionOwner);
+				cardDetails.append(milestone, nextAction);
+
+				card.append(
+					cardHeader,
+					...titlePanels,
+					createOngoingBlockerSection(project, index),
+					createAxisDeliverySection(project, index),
+				);
+
+				return card;
+			}
+
+			function renderMetrics(metrics) {
+				metricsContainer.replaceChildren();
+				for (const metric of metrics) {
+					const article = document.createElement("article");
+					article.className = "metric";
+					article.dataset.status = metric.status;
+					const label = document.createElement("span");
+					label.className = "metric-label";
+					label.textContent = metric.label;
+					const count = document.createElement("strong");
+					count.className = "metric-count";
+					count.textContent = metric.count;
+					count.setAttribute("aria-label", `${metric.count} projects`);
+					const detail = document.createElement("span");
+					detail.className = "metric-detail";
+					detail.textContent = metric.detail;
+					article.append(label, count, detail);
+					metricsContainer.append(article);
+				}
+			}
+
+			function renderPortfolio(portfolioData) {
+				sourceLabel.textContent = `Source of truth: ${portfolioData.sources.join(" / ")}`;
+				projectCards.replaceChildren();
+				portfolioData.projects.forEach((project, index) => {
+					projectCards.append(createProjectCard(project, index));
+				});
+				renderMetrics(portfolioData.metrics);
+			}
+
+			loadPortfolioData().then(renderPortfolio);
+		</script>
+	</body>
+</html>
