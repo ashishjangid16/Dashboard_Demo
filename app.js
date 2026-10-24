@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   '/api/webhooks/github',
-  express.raw({ type: 'application/json' }),
+  express.raw({ type: '*/*' }),
   githubWebhookRoutes,
 );
 app.use(express.json());

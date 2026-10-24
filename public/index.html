@@ -273,6 +273,7 @@
 				color: var(--muted);
 				font-size: 13px;
 				line-height: 1.6;
+				white-space: pre-line;
 			}
 
 			.meetings-panel {
@@ -807,106 +808,21 @@
 		</div>
 
 		<script>
-			const localProjects = [
-				{
-					name: "Axis Bank",
-					status: "on-track",
-					needsReview: true,
-					managementOwner: "Srijan",
-					fdeOwner: "Rushab",
-					blocker: "GLO Assistant API failure during e-stamp upload",
-					blockerDescription: "Potential delay to loan documentation. Confirm whether uploads are blocked.",
-					nextMilestone: "E-stamp workflow verified",
-					milestoneDeadline: "2026-11-06",
-					nextAction: "Investigate API failure",
-					nextActionOwner: "Aniket",
-					weekRange: "Oct 12-18 | Weekly overview",
-					weeklyBlockers: [
-						{
-							title: "GLO Assistant API failure",
-							status: "ongoing",
-							nextMilestone: "E-stamp workflow verified",
-							nextAction: "Validate token renewal and inspect timeout logs; confirm successful uploads.",
-							dueDate: "2026-10-20",
-							fdeOwner: "Rushab",
-						},
-						{
-							title: "CKYC verification check",
-							status: "done",
-							nextMilestone: "Identity and CKYC verification confirmed",
-							nextAction: "Monitor CKYC results in the next verification run.",
-							dueDate: "2026-10-16",
-							fdeOwner: "Rushab",
-						},
-						{
-							title: "CIBIL API credentials check",
-							status: "done",
-							nextMilestone: "Identity and CIBIL checks verified",
-							nextAction: "Confirm the credentials remain valid in the test environment.",
-							dueDate: "2026-10-17",
-							fdeOwner: "Rushab",
-						},
-					],
-				},
-				{
-					name: "Amar Chitra Katha",
-					status: "on-track",
-					managementOwner: "Bharat",
-					fdeOwner: "Jayesh",
-					blocker: "Final campaign assets awaiting content sign-off",
-					blockerDescription: "Confirm approval of the remaining creative assets before production handoff.",
-					nextMilestone: "Content approval complete",
-					milestoneDeadline: "2026-11-18",
-					nextAction: "Confirm asset approval",
-					nextActionOwner: "Ravish",
-				},
-				{
-					name: "Lodha",
-					status: "on-track",
-					managementOwner: "Srijan",
-					fdeOwner: "Ravish",
-					blocker: "Valuation service PR is awaiting review",
-					blockerDescription: "Review the open change before integrating the valuation service.",
-					nextMilestone: "Valuation integration verified",
-					milestoneDeadline: "2026-12-04",
-					nextAction: "Follow up on PR review",
-					nextActionOwner: "Abhishek",
-				},
-				{
-					name: "Mahyco",
-					status: "at-risk",
-					managementOwner: "Abhisekh",
-					fdeOwner: "None",
-					blocker: "Client approval pending for crop-data mapping",
-					blockerDescription: "Mapping changes cannot be finalized until the client confirms the proposed fields.",
-					nextMilestone: "Crop-data mapping approved",
-					milestoneDeadline: "2026-10-19",
-					nextAction: "Request client confirmation",
-					nextActionOwner: "Koshik",
-				},
-				{
-					name: "Kiran Gems",
-					status: "off-track",
-					managementOwner: "Srijan",
-					fdeOwner: "None",
-					blocker: "Nothing",
-					blockerDescription: "No Slack activity since last activity",
-					nextMilestone: "Nothing",
-					milestoneDeadline: "",
-					nextAction: "Nothing",
-					nextActionOwner: "None",
-				},
-			];
-
-			const statusLabels = {
-				"on-track": "On track",
-				"at-risk": "At risk",
-				"off-track": "Off track",
+			const API_ENDPOINTS = {
+				status: "/api",
+				health: "/api/health",
+				databaseHealth: "/api/health/db",
+				portfolio: "/api/portfolio",
 			};
 
-			const sourceLabel = document.querySelector("#portfolio-source");
-			const projectCards = document.querySelector("#project-cards");
-			const metricsContainer = document.querySelector("#portfolio-metrics");
+			async function getJson(endpoint) {
+				const response = await fetch(endpoint);
+				if (!response.ok) {
+					throw new Error(`${endpoint} returned HTTP ${response.status}`);
+				}
+
+				return response.json();
+			}
 
 			function emptyMeetings() {
 				return {
@@ -944,31 +860,28 @@
 						dueDate: project.milestoneDeadline,
 						fdeOwner: project.fdeOwner,
 					},
-					{
-						title: project.nextAction,
-						status: "done",
-						summary: "",
-						nextMilestone: project.nextMilestone,
-						nextAction: project.nextAction,
-						dueDate: project.milestoneDeadline,
-						fdeOwner: project.fdeOwner,
-					},
 				];
 
 				return blockerTemplates.slice(0, count);
 			}
 
-			function clearDropdownSummaries(project) {
+			function normalizeProject(project) {
+				const isAxis = project.name === "Axis Bank";
 				const meetings = project.meetings ?? emptyMeetings();
-				const weeklyBlockers = project.weeklyBlockers ?? [];
+				const weeklyBlockers =
+					project.weeklyBlockers && project.weeklyBlockers.length > 0
+						? project.weeklyBlockers
+						: defaultWeeklyBlockers(project);
 
 				return {
 					...project,
-					weekSummary: "",
+					needsReview: isAxis ? Boolean(project.needsReview) : false,
+					weekSummary: isAxis ? project.weekSummary || "" : "",
 					needsReviewReason: "",
 					blockerSummary: "",
 					milestoneSummary: "",
 					nextActionSummary: "",
+					weekRange: project.weekRange || "Dummy weekly overview",
 					meetings: {
 						teamDates: (meetings.teamDates ?? []).map((meeting) => ({ ...meeting, summary: "" })),
 						previousClientMeetings: (meetings.previousClientMeetings ?? []).map((meeting) => ({
@@ -981,71 +894,42 @@
 				};
 			}
 
-			function normalizeProject(project) {
-				const weeklyBlockers =
-					project.weeklyBlockers && project.weeklyBlockers.length > 0
-						? project.weeklyBlockers
-						: defaultWeeklyBlockers(project);
-
-				return clearDropdownSummaries({
-					needsReview: false,
-					meetings: emptyMeetings(),
-					needsReviewReason: "",
-					blockerSummary: "",
-					milestoneSummary: "",
-					nextActionSummary: "",
-					weekRange: "Dummy weekly overview",
-					...project,
-					needsReview: project.name === "Axis Bank" ? project.needsReview : false,
-					weeklyBlockers,
-				});
-			}
-
-			function buildMetrics(projects) {
-				const onTrack = projects.filter((project) => project.status === "on-track").length;
-				const atRisk = projects.filter((project) => project.status === "at-risk").length;
-				const offTrack = projects.filter((project) => project.status === "off-track").length;
+			function normalizePortfolio(portfolioData) {
+				const projects = portfolioData.projects.map(normalizeProject);
 				const needsReview = projects.filter((project) => project.needsReview).length;
 
-				return [
-					{ status: "on-track", label: "On track", count: onTrack, detail: "Dummy projects included" },
-					{ status: "at-risk", label: "At risk", count: atRisk, detail: "Dummy projects included" },
-					{ status: "off-track", label: "Off track", count: offTrack, detail: "Dummy projects included" },
-					{ status: "needs-review", label: "Needs review", count: needsReview, detail: "Axis Bank" },
-				];
+				return {
+					...portfolioData,
+					projects,
+					metrics: portfolioData.metrics.map((metric) =>
+						metric.status === "needs-review" ? { ...metric, count: needsReview, detail: "Axis Bank" } : metric,
+					),
+				};
 			}
 
-			async function loadAxisBankProject() {
+			async function loadPortfolio() {
 				try {
-					const response = await fetch("/api/portfolio");
-					if (!response.ok) {
-						throw new Error(`Portfolio API failed with ${response.status}`);
+					const result = await getJson(API_ENDPOINTS.portfolio);
+					if (!result.data) {
+						throw new Error("Portfolio API response is missing data");
 					}
-
-					const body = await response.json();
-					return body.data?.projects?.find((project) => project.name === "Axis Bank") ?? null;
+					renderPortfolio(normalizePortfolio(result.data));
 				} catch (error) {
-					console.error("Could not load Axis Bank from API:", error.message);
-					return null;
+					console.error("Failed to load portfolio:", error);
+					const cards = document.querySelector("#project-cards");
+					cards.textContent = "Unable to load portfolio data. Check the server and try refreshing.";
 				}
 			}
 
-			async function loadPortfolioData() {
-				const axisFromApi = await loadAxisBankProject();
-				const projects = localProjects.map((project) => {
-					if (project.name === "Axis Bank" && axisFromApi) {
-						return normalizeProject({ ...project, ...axisFromApi });
-					}
-
-					return normalizeProject(project);
-				});
-
-				return {
-					projects,
-					sources: ["GitHub", "Slack"],
-					metrics: buildMetrics(projects),
-				};
-			}
+			function renderPortfolio(portfolioData) {
+				const statusLabels = {
+				"on-track": "On track",
+				"at-risk": "At risk",
+				"off-track": "Off track",
+			};
+			const projectCards = document.querySelector("#project-cards");
+			document.querySelector("#portfolio-source").textContent =
+				`Source of truth: ${portfolioData.sources.join(" / ")}`;
 
 			function createSummaryDisclosure(label, text, id) {
 				const toggle = document.createElement("button");
@@ -1053,10 +937,8 @@
 				toggle.type = "button";
 				toggle.setAttribute("aria-expanded", "false");
 				toggle.setAttribute("aria-controls", id);
-
 				const toggleLabel = document.createElement("span");
 				toggleLabel.textContent = label;
-
 				const chevron = document.createElement("span");
 				chevron.className = "summary-chevron";
 				chevron.setAttribute("aria-hidden", "true");
@@ -1066,7 +948,6 @@
 				panel.className = "weekly-summary";
 				panel.id = id;
 				panel.hidden = true;
-
 				if (text) {
 					const paragraph = document.createElement("p");
 					paragraph.textContent = text;
@@ -1078,16 +959,7 @@
 					toggle.setAttribute("aria-expanded", String(!expanded));
 					panel.hidden = expanded;
 				});
-
 				return { toggle, panel };
-			}
-
-			function formatDate(date, locale = "en-US", options = { month: "short", day: "numeric", year: "numeric" }) {
-				if (!date) {
-					return "";
-				}
-
-				return new Date(`${date}T00:00:00`).toLocaleDateString(locale, options);
 			}
 
 			function createMeetingsDisclosure(meetings, index) {
@@ -1099,7 +971,8 @@
 				const teamMeeting = createSummaryDisclosure("Team meeting", "", `team-meeting-${index}`);
 				const teamContent = document.createElement("div");
 				teamContent.className = "meeting-calendar";
-				teamContent.append(createMeetingCalendar("Team meeting", meetings.teamDates, `team-meetings-${index}`));
+				const teamCalendar = createMeetingCalendar("Team meeting", meetings.teamDates, `team-meetings-${index}`);
+				teamContent.append(teamCalendar);
 				teamMeeting.panel.append(teamContent);
 				teamEntry.append(teamMeeting.toggle, teamMeeting.panel);
 
@@ -1108,24 +981,23 @@
 				const clientMeeting = createSummaryDisclosure("Client meeting", "", `client-meeting-${index}`);
 				const clientContent = document.createElement("div");
 				clientContent.className = "meeting-calendar";
-				clientContent.append(
-					createMeetingCalendar("Client meeting", meetings.previousClientMeetings, `client-meetings-${index}`),
-				);
-
-				if (meetings.nextClientDate) {
-					const nextMeeting = document.createElement("div");
-					nextMeeting.className = "meeting-next-date";
-					const nextMeetingLabel = document.createElement("span");
-					nextMeetingLabel.textContent = "Next Client meeting";
-					const nextMeetingDate = document.createElement("time");
-					nextMeetingDate.dateTime = meetings.nextClientDate;
-					nextMeetingDate.textContent = formatDate(meetings.nextClientDate);
-					nextMeeting.append(nextMeetingLabel, nextMeetingDate);
-					clientContent.append(nextMeeting);
-				}
-
+				const clientCalendar = createMeetingCalendar("Client meeting", meetings.previousClientMeetings, `client-meetings-${index}`);
+				const nextMeeting = document.createElement("div");
+				nextMeeting.className = "meeting-next-date";
+				const nextMeetingLabel = document.createElement("span");
+				nextMeetingLabel.textContent = "Next Client meeting";
+				const nextMeetingDate = document.createElement("time");
+				nextMeetingDate.dateTime = meetings.nextClientDate;
+				nextMeetingDate.textContent = new Date(`${meetings.nextClientDate}T00:00:00`).toLocaleDateString("en-US", {
+					month: "short",
+					day: "numeric",
+					year: "numeric",
+				});
+				nextMeeting.append(nextMeetingLabel, nextMeetingDate);
+				clientContent.append(clientCalendar, nextMeeting);
 				clientMeeting.panel.append(clientContent);
 				clientEntry.append(clientMeeting.toggle, clientMeeting.panel);
+
 				disclosure.panel.append(teamEntry, clientEntry);
 				return disclosure;
 			}
@@ -1158,8 +1030,16 @@
 						entry.className = "meeting-date-entry";
 						const date = document.createElement("time");
 						date.dateTime = meeting.date;
-						date.textContent = formatDate(meeting.date);
-						const summary = createSummaryDisclosure("Summary", meeting.summary, `${idPrefix}-summary-${meetingIndex}`);
+						date.textContent = new Date(`${meeting.date}T00:00:00`).toLocaleDateString("en-US", {
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+						});
+						const summary = createSummaryDisclosure(
+							"Summary",
+							meeting.summary,
+							`${idPrefix}-summary-${meetingIndex}`,
+						);
 						entry.append(date, summary.toggle, summary.panel);
 						meetingList.append(entry);
 					});
@@ -1190,7 +1070,6 @@
 				toggle.type = "button";
 				toggle.setAttribute("aria-expanded", "false");
 				toggle.setAttribute("aria-controls", detailsId);
-
 				const title = document.createElement("span");
 				title.className = "weekly-blocker-title";
 				title.textContent = blocker.title;
@@ -1213,14 +1092,13 @@
 					summary.textContent = blocker.summary;
 					details.append(summary);
 				}
-
 				const detailGrid = document.createElement("div");
 				detailGrid.className = "weekly-blocker-detail-grid";
 				for (const [label, value] of [
 					["Next milestone", blocker.nextMilestone],
 					["Next action", blocker.nextAction],
 					["Owner", `FDE owner: ${blocker.fdeOwner}`],
-					["Due date", formatDate(blocker.dueDate)],
+					["Due date", new Date(`${blocker.dueDate}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })],
 				]) {
 					const detail = document.createElement("div");
 					const detailLabel = document.createElement("span");
@@ -1244,7 +1122,7 @@
 			}
 
 			function createOngoingBlockerSection(project, index) {
-				const blocker = project.weeklyBlockers.find((entry) => entry.status === "ongoing");
+				const blocker = project.weeklyBlockers.find((entry) => entry.status === "ongoing") ?? project.weeklyBlockers[0];
 				if (!blocker) {
 					return document.createDocumentFragment();
 				}
@@ -1262,13 +1140,10 @@
 			}
 
 			function createAxisDeliverySection(project, index) {
-				if (project.weeklyBlockers.length === 0) {
-					return document.createDocumentFragment();
-				}
-
 				const section = document.createElement("section");
 				section.className = "weekly-blockers-card";
 				section.setAttribute("aria-label", "This week's blockers");
+
 				const blockerCounts = project.weeklyBlockers.reduce(
 					(counts, blocker) => {
 						counts[blocker.status] += 1;
@@ -1276,7 +1151,9 @@
 					},
 					{ done: 0, ongoing: 0, overdue: 0 },
 				);
+				const totalBlockers = project.weeklyBlockers.length;
 				const panelId = `weekly-blockers-${index}`;
+
 				const summaryToggle = document.createElement("button");
 				summaryToggle.className = "weekly-blockers-toggle";
 				summaryToggle.type = "button";
@@ -1306,7 +1183,7 @@
 				const total = document.createElement("span");
 				total.className = "weekly-blocker-total";
 				const totalNumber = document.createElement("span");
-				totalNumber.textContent = project.weeklyBlockers.length;
+				totalNumber.textContent = totalBlockers;
 				const totalLabel = document.createElement("span");
 				totalLabel.textContent = "Blockers";
 				total.append(totalNumber, totalLabel);
@@ -1325,13 +1202,15 @@
 					content.hidden = expanded;
 				});
 				section.append(summaryToggle, content);
+
 				project.weeklyBlockers.forEach((blocker, blockerIndex) => {
 					content.append(createWeeklyBlockerRow(blocker, index, blockerIndex));
 				});
+
 				return section;
 			}
 
-			function createProjectCard(project, index) {
+			for (const [index, project] of portfolioData.projects.entries()) {
 				const headingId = `project-card-title-${index}`;
 				const blockerId = `project-card-blocker-${index}`;
 				const card = document.createElement("article");
@@ -1353,23 +1232,17 @@
 				const lastWeekSummary = createSummaryDisclosure("Last week summary", "", `last-week-summary-${index}`);
 				titleControls.push(lastWeekSummary.toggle);
 				titlePanels.push(lastWeekSummary.panel);
-
 				if (project.meetings) {
 					const meetings = createMeetingsDisclosure(project.meetings, index);
 					titleControls.push(meetings.toggle);
 					titlePanels.push(meetings.panel);
 				}
 				if (project.needsReview) {
-					const needsReviewSummary = createSummaryDisclosure(
-						"Needs review",
-						project.needsReviewReason ?? "",
-						`needs-review-${index}`,
-					);
+					const needsReviewSummary = createSummaryDisclosure("Needs review", project.needsReviewReason ?? "", `needs-review-${index}`);
 					titleControls.push(needsReviewSummary.toggle);
 					titlePanels.push(needsReviewSummary.panel);
 				}
 				projectTitleRow.append(...titleControls);
-
 				const owners = document.createElement("div");
 				owners.className = "owner-list";
 				const managementOwner = document.createElement("span");
@@ -1421,7 +1294,7 @@
 				milestoneDate.className = "project-card-subvalue";
 				if (project.milestoneDeadline) {
 					milestoneDate.dateTime = project.milestoneDeadline;
-					milestoneDate.textContent = `Due ${formatDate(project.milestoneDeadline, "en-GB", { day: "numeric", month: "short" })}`;
+					milestoneDate.textContent = `Due ${new Date(`${project.milestoneDeadline}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
 				} else {
 					milestoneDate.hidden = true;
 				}
@@ -1450,41 +1323,34 @@
 					createOngoingBlockerSection(project, index),
 					createAxisDeliverySection(project, index),
 				);
-
-				return card;
+				projectCards.append(card);
 			}
 
-			function renderMetrics(metrics) {
-				metricsContainer.replaceChildren();
-				for (const metric of metrics) {
-					const article = document.createElement("article");
-					article.className = "metric";
-					article.dataset.status = metric.status;
-					const label = document.createElement("span");
-					label.className = "metric-label";
-					label.textContent = metric.label;
-					const count = document.createElement("strong");
-					count.className = "metric-count";
-					count.textContent = metric.count;
-					count.setAttribute("aria-label", `${metric.count} projects`);
-					const detail = document.createElement("span");
-					detail.className = "metric-detail";
-					detail.textContent = metric.detail;
-					article.append(label, count, detail);
-					metricsContainer.append(article);
-				}
+			const metricsContainer = document.querySelector("#portfolio-metrics");
+			for (const metric of portfolioData.metrics) {
+				const article = document.createElement("article");
+				article.className = "metric";
+				article.dataset.status = metric.status;
+
+				const label = document.createElement("span");
+				label.className = "metric-label";
+				label.textContent = metric.label;
+
+				const count = document.createElement("strong");
+				count.className = "metric-count";
+				count.textContent = metric.count;
+				count.setAttribute("aria-label", `${metric.count} projects`);
+
+				const detail = document.createElement("span");
+				detail.className = "metric-detail";
+				detail.textContent = metric.detail;
+
+				article.append(label, count, detail);
+				metricsContainer.append(article);
+			}
 			}
 
-			function renderPortfolio(portfolioData) {
-				sourceLabel.textContent = `Source of truth: ${portfolioData.sources.join(" / ")}`;
-				projectCards.replaceChildren();
-				portfolioData.projects.forEach((project, index) => {
-					projectCards.append(createProjectCard(project, index));
-				});
-				renderMetrics(portfolioData.metrics);
-			}
-
-			loadPortfolioData().then(renderPortfolio);
+			loadPortfolio();
 		</script>
 	</body>
 </html>

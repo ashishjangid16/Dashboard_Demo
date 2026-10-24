@@ -5,7 +5,7 @@ const { testConnection } = require('./db');
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, async () => {
+const server = app.listen(port, async () => {
   console.log(`Server running at http://localhost:${port}/`);
 
   if (!process.env.DATABASE_URL) {
@@ -19,4 +19,14 @@ app.listen(port, async () => {
   } catch (error) {
     console.error('PostgreSQL connection failed:', error.message);
   }
+});
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use. Stop the other server or change PORT in .env.`);
+    process.exit(1);
+  }
+
+  console.error('Server failed to start:', error.message);
+  process.exit(1);
 });

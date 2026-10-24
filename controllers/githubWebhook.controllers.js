@@ -4,7 +4,29 @@ const { saveWebhookEvent } = require('../models/githubWebhook.model');
 const getWebhookSecret = () =>
   process.env.GITHUB_WEBHOOK_SECRET || process.env.WEBHOOK_SECRET;
 
+const parseGitHubPayload = (req) => {
+  const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
+  const contentType = req.get('content-type') || '';
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    const params = new URLSearchParams(rawBody);
+    const payload = params.get('payload');
+
+    if (!payload) {
+      throw new Error('Missing payload form field.');
+    }
+
+    return JSON.parse(payload);
+  }
+
+  return JSON.parse(rawBody);
+};
+
 const verifyGitHubSignature = (payload, signature, secret) => {
+  if (!Buffer.isBuffer(payload)) {
+    return false;
+  }
+
   if (!signature || !signature.startsWith('sha256=')) {
     return false;
   }
@@ -47,7 +69,7 @@ const handleGitHubWebhook = async (req, res) => {
   let payload;
 
   try {
-    payload = JSON.parse(req.body.toString('utf8'));
+    payload = parseGitHubPayload(req);
   } catch (error) {
     return res.status(400).json({
       status: 'error',
