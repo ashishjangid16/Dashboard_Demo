@@ -1,0 +1,15 @@
+Axis Bank: We discussed the issues we found so far in the sheet, we are working on fixing them in the sheet against the respective schema if the fix needs to be across else we are marking comments in the respective sheet against the scenario, its request seed or its external seed depending on the problem we discover. We will continue to revisit scenarios and re-sync at 7:00 PM
+
+We will list all patterns found and work on the actual description required to fix all of these on the sheet in this call itself.
+
+We agreed on the Patch API use in our scenarios and @Khagesh Please share the design principles we discussed here with example for Srijan to review so he can comment offline.
+
+Also quick client-side note: Axis Bank asked us to keep a short client checkpoint on Nov 1 to walk through the sheet fixes, request seed vs external seed patterns, and confirm whether any scenario-level comments still need cleanup before implementation.
+
+Priya: I have scheduled a client meeting with Axis Bank for Nov 1 to review the application API flow and confirm the PAN verification experience. Can we have the flow diagram and open questions ready beforehand?
+
+Rohan: Nov 1 works. I will share the invite and ask their API contact to join.
+
+We missed the deadline for the Aurum API check, and this can risk the Axis Bank client meeting outcome if we do not close the open validation items before the Nov 1 checkpoint.
+
+Let's connect on the standup call at 7:00 PM

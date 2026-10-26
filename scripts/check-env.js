@@ -5,7 +5,18 @@ const requiredKeys = [
   'GITHUB_WEBHOOK_SECRET',
   'NGROK_AUTHTOKEN',
   'DATABASE_URL',
+];
+
+const optionalKeys = [
   'DB_SSL',
+  'SLACK_BOT_TOKEN',
+  'SLACK_APP_TOKEN',
+  'APP_LEVEL_TOKEN',
+  'SLACK_SIGNING_SECRET',
+  'SLACK_CHANNEL_ID',
+  'SLACK_SOCKET_MODE',
+  'OPENAI_API_KEY',
+  'OPENAI_MODEL',
 ];
 
 let hasMissingValue = false;
@@ -17,6 +28,13 @@ for (const key of requiredKeys) {
   if (!isSet) {
     hasMissingValue = true;
   }
+
+  console.log(`${key}: ${isSet ? `set length=${value.length}` : 'missing'}`);
+}
+
+for (const key of optionalKeys) {
+  const value = process.env[key] || '';
+  const isSet = value.trim().length > 0;
 
   console.log(`${key}: ${isSet ? `set length=${value.length}` : 'missing'}`);
 }
